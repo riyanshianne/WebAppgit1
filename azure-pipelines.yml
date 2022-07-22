@@ -1,41 +1,23 @@
-# ASP.NET Core (.NET Framework)
-# Build and test ASP.NET Core projects targeting the full .NET Framework.
-# Add steps that publish symbols, save build artifacts, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
-
-trigger:
-- master
-
 pool:
-  name: 'Default'
-  vmImage: 'DESKTOP-PMML51P'
-
+  name: Azure Pipelines
 variables:
-  solution: '**/*.sln'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
+  imagename: 'medhaimageyaml'
 
 steps:
-- task: NuGetToolInstaller@1
-
-- task: NuGetCommand@2
+- task: Docker@0
+  displayName: 'Build an image'
   inputs:
-    restoreSolution: '$(solution)'
+    azureSubscription: 'sriharsha devops-terraform-on-azure-with-azure-devops'
+    azureContainerRegistry: '{"loginServer":"acrmedha2303.azurecr.io", "id" : "/subscriptions/f456dd18-85da-45af-a9f6-372811f73b09/resourceGroups/docker-group/providers/Microsoft.ContainerRegistry/registries/acrmedha2303"}'
+    dockerFile: WebAppgit1/Dockerfile
+    imageName: '$(imagename)'
+    includeLatestTag: true
 
-- task: VSBuild@1
+- task: Docker@0
+  displayName: 'Push an image'
   inputs:
-    solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
-
-- task: VSTest@2
-  inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
-
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
+    azureSubscription: 'sriharsha devops-terraform-on-azure-with-azure-devops'
+    azureContainerRegistry: '{"loginServer":"acrmedha2303.azurecr.io", "id" : "/subscriptions/f456dd18-85da-45af-a9f6-372811f73b09/resourceGroups/docker-group/providers/Microsoft.ContainerRegistry/registries/acrmedha2303"}'
+    action: 'Push an image'
+    imageName: '$(imagename)'
+    includeLatestTag: true
